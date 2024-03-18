@@ -1,0 +1,1 @@
+ffmpeg -ss 0 -i 20240312_194520.mov -to 200 -map 0 -c copy seg1.mov
