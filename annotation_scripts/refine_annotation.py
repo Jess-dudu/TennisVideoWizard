@@ -20,9 +20,9 @@ def probeVideoInfo(videoPath):
     res = res['streams'][0]
 
     info = {}
-    info['duration'] = res['duration']
-    info['width'] = res['width']
-    info['height'] = res['height']
+    info['duration'] = float(res['duration'])
+    info['width'] = int(res['width'])
+    info['height'] = int(res['height'])
     info['frame_rate'] = eval(res['r_frame_rate'])
     info['avg_frame_rate'] = eval(res['avg_frame_rate'])
     
@@ -42,9 +42,24 @@ def loadVideoJson(videoPath):
     videoJsonPath = videoPath + '.json'
     if not os.path.exists(videoJsonPath):
         return None
-    else:            
-        with open(videoJsonPath, 'r') as json_file:
-            dict = json.load(json_file)
+    if not os.path.exists(videoPath):
+        return None
+    
+    videoInfo = probeVideoInfo(videoPath)
+    print(videoInfo)
+
+    with open(videoJsonPath, 'r') as json_file:
+        dict = json.load(json_file)
+    
+    # check if annotation is valid (number of entries > 0)
+    if (len(dict) <= 0):
+        return None
+
+    # check if video length is consistent with annotation
+    time_dif = abs(dict[0]['video_len'] - videoInfo['duration'])
+    if (time_dif > 1):
+        return None
+
     return dict
 
 def extractFrames(videoPath, segId, startTime, numFrames, fps):
@@ -57,17 +72,20 @@ def refineSegments(videoPath, bStart = True):
 
     segId = 0
     for seg in videoSegs:
-        if seg['in_point']:
-            fps = 10
+        fps = 10
+        numFrames = 4 * fps
+
+        ss = seg['start_time']
+        if seg['2nd_serve'] > 0.0:
+            ss = seg['2nd_serve']
+
+        if not bStart:
             ss = seg['end_time']
-            numFrames = 8 * fps
-            if bStart:
-                ss = seg['start_time']
-                numFrames = 4 * fps            
-            halfT = numFrames / fps // 2
-            extractFrames(videoFn, segId, ss - halfT, numFrames, fps)
-            # print(ss)
-            segId += 1
+
+        halfT = numFrames / fps // 2
+        extractFrames(videoPath, segId, ss - halfT, numFrames, fps)
+        # print(ss)
+        segId += 1
 
 if __name__ == '__main__':
     # Parse argument to set "CourtId" (default to 0): 
@@ -78,14 +96,17 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # hard code the video segment to test
-    videoFn = "tmp//seg3.mov"
-    videoInfo = probeVideoInfo(videoFn)
-    print(videoInfo)
+    videoFn = "20240312_195520_seg3.mov"
+    scriptDir = os.path.dirname(os.path.abspath(__file__))
+    videoPath = os.path.join(scriptDir, "tmp", videoFn)
+    print(videoPath)
+    # videoInfo = probeVideoInfo(videoPath)
+    # print(videoInfo)
 
     # load video segments from corresponding json file
-    videoSegs = loadVideoJson(videoFn)
+    videoSegs = loadVideoJson(videoPath)
     print(videoSegs)
 
     # Refine json segments
-    # refineSegments(videoFn, True)
-    refineSegments(videoFn, False)
+    # refineSegments(videoPath, True)
+    # refineSegments(videoPath, False)
