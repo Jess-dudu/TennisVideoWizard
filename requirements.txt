@@ -8,18 +8,10 @@ matplotlib
 scikit-image
 scikit-learn
 pandas
-lxml
-
-ffmpeg-python
-kivy
-selenium
-flask
-# flask-sqlalchemy
-# flask-login
 
 opencv-python
 # pytorch 2.0.1 with cu11.8 (without index-url, we get pytorch 2.0.1 with cu11.7)
---extra-index-url https://download.pytorch.org/whl/cu118
+--extra-index-url https://download.pytorch.org/whl/cu124
 torch
 torchvision
 # torchaudio
