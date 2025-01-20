@@ -23,3 +23,9 @@ Address this video editing task with ML classification model. First, train a ML 
 1. Extract frames from input video at a given FPS (e.g., 5 frames/sec)
 2. Run model on each frame to classify. 
 3. Extract all the points that have streaks longer than some time threshold (points cannot be too short).
+
+## Transfer Learning based ML Model
+
+Use pretrained Resnet model and fine tune the last layer to do classification with following script: resnet50, 3 classes, 2 epoch, 1 gpu, 
+
+python ./src/frame_classifier/resnet_classifier.py 50 3 2 ./_exp/Dataset/train ./_exp/Dataset/val -ts ./_exp/Dataset/test --save_path ./_exp/models --gpus 1 --transfer --tune_fc_only
