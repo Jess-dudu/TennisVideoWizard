@@ -90,7 +90,7 @@ class ResNetClassifier(pl.LightningModule):
             [
                 transforms.Resize((200, 200)),
                 transforms.ToTensor(),
-                transforms.Normalize((0.0,), (0.23051,)),
+                transforms.Normalize((0.48,), (0.23051,)),
             ]
         )
 
