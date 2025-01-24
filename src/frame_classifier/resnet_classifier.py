@@ -55,7 +55,7 @@ class ResNetClassifier(pl.LightningModule):
             task="binary" if num_classes == 1 else "multiclass", num_classes=num_classes
         )
         # Using a pretrained ResNet backbone
-        self.resnet_model = self.resnets[resnet_version](pretrained=transfer)
+        self.resnet_model = self.resnets[resnet_version](weights="DEFAULT")
         # Replace old FC layer with Identity so we can train our own
         linear_size = list(self.resnet_model.children())[-1].in_features
         # replace final layer for fine tuning
@@ -65,6 +65,10 @@ class ResNetClassifier(pl.LightningModule):
             for child in list(self.resnet_model.children())[:-1]:
                 for param in child.parameters():
                     param.requires_grad = False
+
+        self.output_preds = []
+        self.output_gts = []
+
 
     def forward(self, X):
         return self.resnet_model(X)
@@ -80,6 +84,11 @@ class ResNetClassifier(pl.LightningModule):
             preds = preds.flatten()
             y = y.float()
 
+        # keep all predictions & groundtruths
+        self.output_preds.append(preds)
+        self.output_gts.append(y)
+
+        # return loss & acc for this batch
         loss = self.loss_fn(preds, y)
         acc = self.acc(preds, y)
         return loss, acc
@@ -129,3 +138,6 @@ class ResNetClassifier(pl.LightningModule):
         # perform logging
         self.log("test_loss", loss, on_step=True, prog_bar=True, logger=True)
         self.log("test_acc", acc, on_step=True, prog_bar=True, logger=True)
+
+    def predict_step(self, batch, batch_idx):
+        return self._step(batch)
