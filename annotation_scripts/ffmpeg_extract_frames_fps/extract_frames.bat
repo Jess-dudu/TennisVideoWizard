@@ -1,0 +1,1 @@
+ffmpeg -i %1 -vf fps=3 frames/%~n1-%%05d.jpg
