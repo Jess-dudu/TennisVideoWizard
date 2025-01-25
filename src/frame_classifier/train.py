@@ -105,7 +105,7 @@ if __name__ == "__main__":
     trainer_args = {
         "accelerator": "gpu" if args.gpus else "cpu",
         "devices": args.gpus if args.gpus > 0 else "auto",
-        "strategy": "dp" if args.gpus > 1 else "auto",
+        "strategy": "ddp" if args.gpus > 1 else "auto",
         "max_epochs": args.num_epochs,
         "callbacks": [checkpoint_callback],
         "precision": 16 if args.mixed_precision else 32,

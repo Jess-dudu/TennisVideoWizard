@@ -9,10 +9,13 @@ scikit-image
 scikit-learn
 pandas
 
-opencv-python-headless
 # pytorch 2.0.1 with cu11.8 (without index-url, we get pytorch 2.0.1 with cu11.7)
 --extra-index-url https://download.pytorch.org/whl/cu124
 torch
 torchvision
 # torchaudio
 pytorch-lightning
+
+# opencv-python-headless
+opencv-python  # for GUI support in ultralytics
+ultralytics    # for YOLO
