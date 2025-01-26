@@ -28,15 +28,15 @@ Address this video editing task with ML classification model. First, train a ML 
 
 Fine-tune pretrained Resnet model for Cats/Dogs/Horses dataset (https://www.kaggle.com/datasets/arifmia/animal):
 
-python ./src/frame_classifier/train.py 50 3 5 ./_exp/Dataset/train ./_exp/Dataset/val -ts ./_exp/Dataset/test --save_path ./_exp/Dataset/models --gpus 1 --transfer --tune_fc_only
+python ./src/main.py --config animals_cls3.yaml fit
 
 Classification result seems quite good with just 10 epoch (image resized to 200 x 200):
 - resnet18: test_acc_epoch = 0.9497206807136536
 - resnet50: test_acc_epoch = 0.994413435459137
 
 Confusion Matrix: 0-cats (66), 1-dogs (250), 2-horses (42):
-tensor([[ 65,   1,   0],
-        [  0, 250,   0],
+tensor([[ 66,   0,   0],
+        [  1, 249,   0],
         [  1,   0,  41]])
 
 ### Classify video frames to active/between points (2-class)
