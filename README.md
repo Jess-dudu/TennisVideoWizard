@@ -1,6 +1,41 @@
 # TennisVideoWizard
 Try using deep learning to analyze tennis match videos and cut out the non-action parts (between points)
 
+## Classification Method
+
+Video editing task may be addressed with ML classification model. First, train a ML classification model to classify each frame to be active or between points (two classes). Then, for each video, process it in following steps:
+
+1. Extract frames from input video at a given FPS (e.g., 5 frames/sec)
+2. Run model on each frame to classify active/between points. 
+3. Extract all the points that have streaks longer than some time threshold (points cannot be too short).
+
+### Test with Kaggle's Cats/Dogs/Horses Dataset
+
+Fine-tune pretrained Resnet model for Cats/Dogs/Horses dataset (https://www.kaggle.com/datasets/arifmia/animal):
+
+python ./src/main.py --config animals_cls3.yaml fit
+
+Classification result seems quite good with just 10 epoch (image resized to 200 x 200):
+- resnet18: test_acc_epoch = 0.9497206807136536
+- resnet50: test_acc_epoch = 0.994413435459137
+
+Refer to src/frame_classifier/test_animals_model.ipynb for confusion matrix and test error study (2 errors, one seems to be dirty label, one image has both cat and dog)
+
+### Classify video frames to active/between points (2-class)
+
+Extract frames from some tennis match videos and separate to active/between points folders to prepare for training (train: 5286 images, test: 1791 images). Then, train two-class classification model as follows:
+
+python ./src/main.py --config cls2_tennis.yaml fit
+
+Classification result seems quite bad (test set has 562 vs. 1229 images, always guess "between points" can get 68.6% accuracy)
+- resnet50 (tune_fc_only):  test_acc_epoch = 0.6917923092842102
+- resnet50 (transfer only): test_acc_epoch = 0.7442769408226013
+- resnet50 (num_classes=2): test_acc_epoch = 0.7264098525047302
+
+Confusion Matrix: 0-active (562), 1-between points (1229):
+tensor([[ 195,  367],
+        [ 124, 1105]])
+
 ## Annotation
 
 Start from manual annotation to understand the challenges in the task better.
@@ -15,39 +50,4 @@ Some challenges observed:
 - Should we treat 1st serve fault as a seperate point or not? The gap between 1st and 2nd serve can vary a lot. May want to cut out the long ones.
 - Under-hand serve may be hard to detect.
 - End of point may be harder to pin point accurately.
-
-## Classification Method
-
-Address this video editing task with ML classification model. First, train a ML classification model to classify each frame to be active or between points. Then, for each video, process it in following steps:
-
-1. Extract frames from input video at a given FPS (e.g., 5 frames/sec)
-2. Run model on each frame to classify active/between points. 
-3. Extract all the points that have streaks longer than some time threshold (points cannot be too short).
-
-### Classify Kaggle's Cats/Dogs/Horses Dataset
-
-Fine-tune pretrained Resnet model for Cats/Dogs/Horses dataset (https://www.kaggle.com/datasets/arifmia/animal):
-
-python ./src/main.py --config animals_cls3.yaml fit
-
-Classification result seems quite good with just 10 epoch (image resized to 200 x 200):
-- resnet18: test_acc_epoch = 0.9497206807136536
-- resnet50: test_acc_epoch = 0.994413435459137
-
-Refer to src/frame_classifier/test_animals_model.ipynb for confusion matrix and test error study (2 errors, one seems to be dirty label, one image has both cat and dog)
-
-### Classify video frames to active/between points (2-class)
-
-Extract frames every 1/3 second from some tennis match videos and separate to active/between folders (train: 5286 images, validation: 1791 images). Then, train two-class classification model.
-
-python ./src/frame_classifier/train.py 50 2 5 ./_exp/ClassAB/train ./_exp/ClassAB/val -ts ./_exp/ClassAB/test --save_path ./_exp/ClassAB/models --gpus 1 --transfer --tune_fc_only
-
-Classification result seems very bad (test set has 562 vs. 1229 images, always guess "between points" can get 68.6% accuracy)
-- resnet50 (tune_fc_only):  test_acc_epoch = 0.6917923092842102
-- resnet50 (transfer only): test_acc_epoch = 0.7442769408226013
-- resnet50 (num_classes=2): test_acc_epoch = 0.7264098525047302
-
-Confusion Matrix: 0-active (562), 1-between points (1229):
-tensor([[ 195,  367],
-        [ 124, 1105]])
 

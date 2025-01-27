@@ -9,6 +9,12 @@ from torchmetrics import Accuracy
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
 
+class FixedCrop(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, img):
+        return transforms.functional.crop(img, 324, 406, 490, 860)
 
 # Here we define a new class to turn the ResNet model that we want to use as a feature extractor
 # into a pytorch-lightning module so that we can take advantage of lightning's Trainer object.
@@ -97,7 +103,8 @@ class ResNetClassifier(pl.LightningModule):
         # values here are specific to pneumonia dataset and should be updated for custom data
         transform = transforms.Compose(
             [
-                transforms.Resize((200, 200)),
+                # FixedCrop(),
+                transforms.Resize((224, 224)),
                 transforms.ToTensor(),
                 transforms.Normalize((0.48,), (0.23051,)),
             ]
