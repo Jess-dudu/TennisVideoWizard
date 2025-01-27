@@ -34,10 +34,7 @@ Classification result seems quite good with just 10 epoch (image resized to 200 
 - resnet18: test_acc_epoch = 0.9497206807136536
 - resnet50: test_acc_epoch = 0.994413435459137
 
-Confusion Matrix: 0-cats (66), 1-dogs (250), 2-horses (42):
-tensor([[ 66,   0,   0],
-        [  1, 249,   0],
-        [  1,   0,  41]])
+Refer to src/frame_classifier/test_animals_model.ipynb for confusion matrix and test error study (2 errors, one seems to be dirty label, one image has both cat and dog)
 
 ### Classify video frames to active/between points (2-class)
 
