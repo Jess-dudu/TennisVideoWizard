@@ -32,9 +32,10 @@ Classification result seems quite bad (test set has 562 vs. 1229 images, always 
 - resnet50 (transfer only): test_acc_epoch = 0.7442769408226013
 - resnet50 (num_classes=2): test_acc_epoch = 0.7264098525047302
 
+Allow backbone network learning & reduce lr to 0.0001 & crop image to tighter frame & RandomHorizontalFlip (acc = 82%):
 Confusion Matrix: 0-active (562), 1-between points (1229):
-tensor([[ 195,  367],
-        [ 124, 1105]])
+tensor([[ 424,  138],
+        [ 182, 1047]])
 
 ## Annotation
 

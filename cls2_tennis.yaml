@@ -1,6 +1,6 @@
 # pytorch_lightning==2.5.0.post0
 fit:
-  seed_everything: true
+  seed_everything: 42
   trainer:
     accelerator: auto
     strategy: auto
@@ -48,10 +48,11 @@ fit:
     val_path: "./_exp/ClassAB/val"
     test_path: "./_exp/ClassAB/test"
     optimizer: adam
-    lr: 0.001
+    lr: 0.0001
     batch_size: 16
     transfer: true
-    tune_fc_only: true
+    tune_fc_only: false
+    crop_input: true
   data: null
   optimizer: null
   lr_scheduler: null

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import torch
 import torchvision
 
-def imshow(img, caption):
+def show_image_with_caption(img, caption):
     npimg = img.numpy()
     npimg = np.clip(npimg / 2 + 0.5, min=0, max=1.0)     # unnormalize
     fig = plt.gcf()
@@ -11,12 +11,21 @@ def imshow(img, caption):
     plt.title(caption)
     plt.show()
 
-def show_images(images, labels):
-    caption = f"GT Labels: {labels}"
-    # show images
-    imshow(torchvision.utils.make_grid(images), caption)
+def show_images(images, labels = None, maxNumber = 4):
+    num_imgs = len(images)
+    if labels is not None:
+        assert(len(labels) == num_imgs)
+    if (maxNumber > 0):
+        num_imgs = min(maxNumber, num_imgs)
 
-def show_error_cases(y_hat, y_gts, dataset, class_id):
+    caption = "Images with no labels"
+    if labels is not None:
+        caption = f"Image Labels: {labels[0:num_imgs]}"
+    # show images and labels
+    show_image_with_caption(torchvision.utils.make_grid(images[0:num_imgs]), caption)
+
+def collect_error_cases(y_hat, y_gts, dataset, class_id, show=True, save=False):
+    # collect error cases (mis-classified as given class_id)
     error_cases = (y_hat == class_id) & (class_id != y_gts)
     images = []
     gt_cls = []
@@ -25,9 +34,10 @@ def show_error_cases(y_hat, y_gts, dataset, class_id):
             images.append(dataset[i][0])
             gt_cls.append(dataset[i][1])
 
-    if len(images) == 0:
-        print(f"No cases falsely classified as class {class_id}")
-        return
-    
-    print(f"Cases falsely classified as class {class_id}")
-    show_images(images, gt_cls) 
+    num_of_errors = len(images)
+
+    if (num_of_errors > 0) and (show):
+        print(f"Cases falsely classified as class {class_id}")
+        show_images(images, gt_cls) 
+
+    return num_of_errors

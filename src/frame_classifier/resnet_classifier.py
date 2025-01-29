@@ -10,11 +10,15 @@ from torchvision import transforms
 from torchvision.datasets import ImageFolder
 
 class FixedCrop(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, bApply = True):
         super().__init__()
+        self.bApply = bApply
 
     def forward(self, img):
-        return transforms.functional.crop(img, 324, 406, 490, 860)
+        if (self.bApply):
+            return transforms.functional.crop(img, 324, 406, 490, 860)
+        else:
+            return img
 
 # Here we define a new class to turn the ResNet model that we want to use as a feature extractor
 # into a pytorch-lightning module so that we can take advantage of lightning's Trainer object.
@@ -41,9 +45,11 @@ class ResNetClassifier(pl.LightningModule):
         batch_size=16,
         transfer=True,
         tune_fc_only=True,
+        crop_input=False,
     ):
         super().__init__()
-
+        self.save_hyperparameters()
+        
         self.num_classes = num_classes
         self.train_path = train_path
         self.val_path = val_path
@@ -66,6 +72,7 @@ class ResNetClassifier(pl.LightningModule):
         linear_size = list(self.resnet_model.children())[-1].in_features
         # replace final layer for fine tuning
         self.resnet_model.fc = nn.Linear(linear_size, num_classes)
+        self.crop_input = crop_input
 
         if tune_fc_only:  # option to only tune the fully-connected layers
             for child in list(self.resnet_model.children())[:-1]:
@@ -103,7 +110,8 @@ class ResNetClassifier(pl.LightningModule):
         # values here are specific to pneumonia dataset and should be updated for custom data
         transform = transforms.Compose(
             [
-                # FixedCrop(),
+                FixedCrop(self.crop_input),
+                # transforms.RandomHorizontalFlip(),
                 transforms.Resize((224, 224)),
                 transforms.ToTensor(),
                 transforms.Normalize((0.48,), (0.23051,)),

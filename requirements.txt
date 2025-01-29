@@ -15,7 +15,7 @@ torch
 torchvision
 # torchaudio
 # pytorch-lightning
-pytorch-lightning["extra"]
+pytorch-lightning[extra]
 
 # opencv-python-headless
 opencv-python  # for GUI support in ultralytics
