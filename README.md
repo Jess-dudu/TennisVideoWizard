@@ -34,8 +34,14 @@ Classification result seems quite bad (test set has 562 vs. 1229 images, always 
 
 Allow backbone network learning & reduce lr to 0.0001 & crop image to tighter frame & RandomHorizontalFlip (acc = 82%):
 Confusion Matrix: 0-active (562), 1-between points (1229):
+
+%83
 tensor([[ 424,  138],
         [ 182, 1047]])
+
+%87 (grayscale)
+tensor([[ 431,  131],
+        [  91, 1138]])
 
 ## Annotation
 

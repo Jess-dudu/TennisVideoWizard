@@ -1,3 +1,5 @@
+import os, sys
+
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
@@ -37,9 +39,7 @@ class ResNetClassifier(pl.LightningModule):
         self,
         num_classes,
         resnet_version,
-        train_path,
-        val_path,
-        test_path=None,
+        dataset_root,
         optimizer="adam",
         lr=1e-3,
         batch_size=16,
@@ -51,9 +51,7 @@ class ResNetClassifier(pl.LightningModule):
         self.save_hyperparameters()
         
         self.num_classes = num_classes
-        self.train_path = train_path
-        self.val_path = val_path
-        self.test_path = test_path
+        self.dataset_root = dataset_root
         self.lr = lr
         self.batch_size = batch_size
 
@@ -106,25 +104,6 @@ class ResNetClassifier(pl.LightningModule):
         acc = self.acc(preds, y)
         return loss, acc
 
-    def _dataloader(self, data_path, shuffle=False):
-        # values here are specific to pneumonia dataset and should be updated for custom data
-        transform = transforms.Compose(
-            [
-                FixedCrop(self.crop_input),
-                # transforms.RandomHorizontalFlip(),
-                transforms.Resize((224, 224)),
-                transforms.ToTensor(),
-                transforms.Normalize((0.48,), (0.23051,)),
-            ]
-        )
-
-        img_folder = ImageFolder(data_path, transform=transform)
-
-        return DataLoader(img_folder, batch_size=self.batch_size, shuffle=shuffle)
-
-    def train_dataloader(self):
-        return self._dataloader(self.train_path, shuffle=True)
-
     def training_step(self, batch, batch_idx):
         loss, acc = self._step(batch)
         # perform logging
@@ -136,17 +115,11 @@ class ResNetClassifier(pl.LightningModule):
         )
         return loss
 
-    def val_dataloader(self):
-        return self._dataloader(self.val_path)
-
     def validation_step(self, batch, batch_idx):
         loss, acc = self._step(batch)
         # perform logging
         self.log("val_loss", loss, on_epoch=True, prog_bar=False, logger=True)
         self.log("val_acc", acc, on_epoch=True, prog_bar=True, logger=True)
-
-    def test_dataloader(self):
-        return self._dataloader(self.test_path)
 
     def test_step(self, batch, batch_idx):
         loss, acc = self._step(batch)
@@ -156,3 +129,46 @@ class ResNetClassifier(pl.LightningModule):
 
     def predict_step(self, batch, batch_idx):
         return self._step(batch)
+
+    ####################################################
+    # Config data loader for this task (transforms)
+    ####################################################
+    def _dataloader(self, sub_dir, shuffle=False):
+        # self.dataset_root = os.path.abspath(os.path.join(self.dataset_root, os.pardir))
+        data_path = os.path.join(self.dataset_root, sub_dir)
+
+        ## setup transform_val
+        bCropInput = self.crop_input
+        bGrayscale = True
+
+        transform_val = transforms.Compose([
+            FixedCrop(True) if bCropInput else FixedCrop(False),
+            transforms.Grayscale(num_output_channels=3) if bGrayscale else FixedCrop(False),
+            transforms.Resize((224, 224)),
+            transforms.ToTensor(),
+        ])
+
+        ## setup transform_train
+        transform_train = transforms.Compose(
+            [
+                transform_val,
+                transforms.RandomHorizontalFlip(0.5),
+            ]
+        )
+
+        # assign correct transform for train/val/test
+        img_folder = ImageFolder(data_path, transform=transform_val)
+        if (shuffle):
+            img_folder = ImageFolder(data_path, transform=transform_train)
+
+        return DataLoader(img_folder, batch_size=self.batch_size, shuffle=shuffle)
+
+    def train_dataloader(self):
+        return self._dataloader("train", shuffle=True)
+
+    def val_dataloader(self):
+        return self._dataloader("val")
+
+    def test_dataloader(self):
+        return self._dataloader("test")
+

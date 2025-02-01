@@ -5,7 +5,7 @@ import torchvision
 
 def show_image_with_caption(img, caption):
     npimg = img.numpy()
-    npimg = np.clip(npimg / 2 + 0.5, min=0, max=1.0)     # unnormalize
+    # npimg = np.clip(npimg / 2 + 0.5, min=0, max=1.0)     # unnormalize
     fig = plt.gcf()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
     plt.title(caption)
