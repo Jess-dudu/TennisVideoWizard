@@ -5,13 +5,28 @@ from pytorch_lightning.cli import ArgsType, LightningCLI
 
 from resnet_classifier import ResNetClassifier
 
-def cli_main(args: ArgsType = None):
-    cli = LightningCLI(ResNetClassifier, args=args)
-    # cli.trainer.fit(cli.model)
+def cli_train(args: ArgsType = None):
+    cli = LightningCLI(ResNetClassifier, args=args, seed_everything_default=42, run=False)
+
+    # setup checkpoint callback
+    save_path = cli.trainer.default_root_dir
+    checkpoint_callback = pl.callbacks.ModelCheckpoint(
+        dirpath=save_path,
+        filename="resnet-{epoch}-{val_acc:0.2f}",
+        monitor="val_loss",
+        save_top_k=3,
+        mode="min",
+        save_last=True,
+    )
+    cli.trainer.callbacks.append(checkpoint_callback)
+
+    # train model
+    cli.trainer.fit(cli.model)
     result = cli.trainer.test(cli.model, datamodule=cli.datamodule)
+    print(result)
 
 if __name__ == "__main__":
-    cli_main()
+    cli_train()
 
     '''
     # # Instantiate Model

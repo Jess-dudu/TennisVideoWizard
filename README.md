@@ -25,23 +25,22 @@ Refer to src/frame_classifier/test_animals_model.ipynb for confusion matrix and 
 
 Extract frames from some tennis match videos and separate to active/between points folders to prepare for training (train: 5286 images, test: 1791 images). Then, train two-class classification model as follows:
 
-python ./src/main.py --config cls2_tennis.yaml fit
+python src/frame_classifier/train.py --config cls2_tennis.yaml
 
 Classification result seems quite bad (test set has 562 vs. 1229 images, always guess "between points" can get 68.6% accuracy)
 - resnet50 (tune_fc_only):  test_acc_epoch = 0.6917923092842102
 - resnet50 (transfer only): test_acc_epoch = 0.7442769408226013
-- resnet50 (num_classes=2): test_acc_epoch = 0.7264098525047302
 
-Allow backbone network learning & reduce lr to 0.0001 & crop image to tighter frame & RandomHorizontalFlip (acc = 82%):
+Allow backbone network learning & reduce lr to 0.0001 & crop image to tighter frame & RandomHorizontalFlip (acc = 83%):
+
 Confusion Matrix: 0-active (562), 1-between points (1229):
-
-%83
+%83 (grayscale, Resnet50, epoch=10)
 tensor([[ 424,  138],
         [ 182, 1047]])
 
-%87 (grayscale)
-tensor([[ 431,  131],
-        [  91, 1138]])
+%87 (grayscale, Resnet101, epoch=10)
+tensor([[ 490,   72],
+        [ 181, 1048]])
 
 ## Annotation
 
