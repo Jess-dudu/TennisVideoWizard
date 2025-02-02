@@ -46,6 +46,7 @@ class ResNetClassifier(pl.LightningModule):
         transfer=True,
         tune_fc_only=True,
         crop_input=False,
+        gray_input=True,
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -71,6 +72,7 @@ class ResNetClassifier(pl.LightningModule):
         # replace final layer for fine tuning
         self.resnet_model.fc = nn.Linear(linear_size, num_classes)
         self.crop_input = crop_input
+        self.gray_input = gray_input
 
         if tune_fc_only:  # option to only tune the fully-connected layers
             for child in list(self.resnet_model.children())[:-1]:
@@ -107,19 +109,15 @@ class ResNetClassifier(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         loss, acc = self._step(batch)
         # perform logging
-        self.log(
-            "train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True
-        )
-        self.log(
-            "train_acc", acc, on_step=True, on_epoch=True, prog_bar=True, logger=True
-        )
+        self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+        self.log("train_acc", acc, on_step=True, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
         loss, acc = self._step(batch)
         # perform logging
-        self.log("val_loss", loss, on_epoch=True, prog_bar=False, logger=True)
-        self.log("val_acc", acc, on_epoch=True, prog_bar=True, logger=True)
+        self.log("val_loss", loss, on_epoch=True, prog_bar=False, logger=True, sync_dist=True)
+        self.log("val_acc", acc, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
 
     def test_step(self, batch, batch_idx):
         loss, acc = self._step(batch)
@@ -139,7 +137,7 @@ class ResNetClassifier(pl.LightningModule):
 
         ## setup transform_val
         bCropInput = self.crop_input
-        bGrayscale = True
+        bGrayscale = self.gray_input
 
         transform_val = transforms.Compose([
             FixedCrop(True) if bCropInput else FixedCrop(False),
@@ -161,7 +159,7 @@ class ResNetClassifier(pl.LightningModule):
         if (shuffle):
             img_folder = ImageFolder(data_path, transform=transform_train)
 
-        return DataLoader(img_folder, batch_size=self.batch_size, shuffle=shuffle)
+        return DataLoader(img_folder, batch_size=self.batch_size, shuffle=shuffle, num_workers=16, pin_memory=True)
 
     def train_dataloader(self):
         return self._dataloader("train", shuffle=True)

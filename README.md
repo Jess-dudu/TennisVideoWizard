@@ -13,11 +13,11 @@ Video editing task may be addressed with ML classification model. First, train a
 
 Fine-tune pretrained Resnet model for Cats/Dogs/Horses dataset (https://www.kaggle.com/datasets/arifmia/animal):
 
-python ./src/main.py --config animals_cls3.yaml fit
+python src/frame_classifier/train.py --config animals_cls3.yaml
 
 Classification result seems quite good with just 10 epoch (image resized to 200 x 200):
 - resnet18: test_acc_epoch = 0.9497206807136536
-- resnet50: test_acc_epoch = 0.994413435459137
+- resnet50: test_acc_epoch = 0.9916201233863831
 
 Refer to src/frame_classifier/test_animals_model.ipynb for confusion matrix and test error study (2 errors, one seems to be dirty label, one image has both cat and dog)
 

@@ -1,14 +1,15 @@
-import warnings
-# warnings.filterwarnings("ignore")
 import pytorch_lightning as pl
 from pytorch_lightning.cli import ArgsType, LightningCLI
+
+# import warnings
+# warnings.filterwarnings("ignore")
 
 from resnet_classifier import ResNetClassifier
 
 def cli_train(args: ArgsType = None):
     cli = LightningCLI(ResNetClassifier, args=args, seed_everything_default=42, run=False)
 
-    # setup checkpoint callback
+    # setup ModelCheckpoint callback
     save_path = cli.trainer.default_root_dir
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
         dirpath=save_path,
@@ -18,6 +19,7 @@ def cli_train(args: ArgsType = None):
         mode="min",
         save_last=True,
     )
+    # stopping_callback = pl.callbacks.EarlyStopping(monitor="val_loss", mode="min")
     cli.trainer.callbacks.append(checkpoint_callback)
 
     # train model
@@ -29,19 +31,6 @@ if __name__ == "__main__":
     cli_train()
 
     '''
-    # # Instantiate Model
-    save_path = args.save_path if args.save_path is not None else "./models"
-    checkpoint_callback = pl.callbacks.ModelCheckpoint(
-        dirpath=save_path,
-        filename="resnet-model-{epoch}-{val_loss:.2f}-{val_acc:0.2f}",
-        monitor="val_loss",
-        save_top_k=3,
-        mode="min",
-        save_last=True,
-    )
-
-    stopping_callback = pl.callbacks.EarlyStopping(monitor="val_loss", mode="min")
-
     # Instantiate lightning trainer and train model
     trainer_args = {
         "accelerator": "gpu" if args.gpus else "cpu",
@@ -52,13 +41,13 @@ if __name__ == "__main__":
         "precision": 16 if args.mixed_precision else 32,
         "default_root_dir": save_path,
     }
-    print(trainer_args)
     trainer = pl.Trainer(**trainer_args)
 
     trainer.fit(model)
 
     if args.test_set:
         trainer.test(model)
+
     # Save trained model weights
     torch.save(trainer.model.resnet_model.state_dict(), save_path + "/trained_model.pt")
     '''

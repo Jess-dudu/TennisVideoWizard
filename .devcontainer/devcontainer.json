@@ -34,7 +34,7 @@
 		}
 	},
 	
-	"runArgs": ["--gpus","all"],
+	"runArgs": ["--gpus","all", "--shm-size=2g"],
 	
 	"mounts": [
 		"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"

@@ -49,6 +49,7 @@ model:
   transfer: true
   tune_fc_only: false
   crop_input: true
+  gray_input: true
 data: null
 optimizer: null
 lr_scheduler: null
