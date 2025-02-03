@@ -5,7 +5,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
-from torch.optim import SGD, Adam
 from torch.utils.data import DataLoader
 from torchmetrics import Accuracy
 from torchvision import transforms
@@ -33,7 +32,7 @@ class ResNetClassifier(pl.LightningModule):
         101: models.resnet101,
         152: models.resnet152,
     }
-    optimizers = {"adam": Adam, "sgd": SGD}
+    optimizers = {"sgd": torch.optim.SGD, "adam": torch.optim.Adam, "adamw": torch.optim.AdamW}
 
     def __init__(
         self,
@@ -70,7 +69,12 @@ class ResNetClassifier(pl.LightningModule):
         # Replace old FC layer with Identity so we can train our own
         linear_size = list(self.resnet_model.children())[-1].in_features
         # replace final layer for fine tuning
-        self.resnet_model.fc = nn.Linear(linear_size, num_classes)
+        final_fc = NN = nn.Sequential(
+            # nn.Dropout(0.8),
+            nn.Linear(linear_size, num_classes)
+        )
+        self.resnet_model.fc = final_fc
+
         self.crop_input = crop_input
         self.gray_input = gray_input
 
@@ -87,6 +91,8 @@ class ResNetClassifier(pl.LightningModule):
         return self.resnet_model(X)
 
     def configure_optimizers(self):
+        # weight_decay = 1e-1
+        # return self.optimizer(self.parameters(), lr=self.lr, weight_decay=weight_decay)
         return self.optimizer(self.parameters(), lr=self.lr)
 
     def _step(self, batch):

@@ -1,37 +1,35 @@
 # TennisVideoWizard
-Try using deep learning to analyze tennis match videos and cut out the non-action parts (between points)
+Try using deep learning models to analyze tennis match videos and cut out the non-action parts (between points)
 
 ## Classification Method
 
-Video editing task may be addressed with ML classification model. First, train a ML classification model to classify each frame to be active or between points (two classes). Then, for each video, process it in following steps:
-
-1. Extract frames from input video at a given FPS (e.g., 5 frames/sec)
-2. Run model on each frame to classify active/between points. 
-3. Extract all the points that have streaks longer than some time threshold (points cannot be too short).
+Previous task may be addressed with ML classification models. We can train a ML classification model to classify each frame to be active or between points (mutually exclusive). Then, cut out all the non-action frames from a given video. 
 
 ### Test with Kaggle's Cats/Dogs/Horses Dataset
 
-Fine-tune pretrained Resnet model for Cats/Dogs/Horses dataset (https://www.kaggle.com/datasets/arifmia/animal):
+A ML classification model based on pre-trained Resnet model is tested for multi-class animal classification task based on Kaggle's animal dataset (https://www.kaggle.com/datasets/arifmia/animal), which contains three type of animals (i.e., Cats/Dogs/Horses). After downloading the dataset, the model can be trained with following command:
 
 python src/frame_classifier/train.py --config animals_cls3.yaml
 
-Classification result seems quite good with just 10 epoch (image resized to 200 x 200):
+Classification result seems quite good with just 10 epoch (image resized to 224 x 224):
 - resnet18: test_acc_epoch = 0.9497206807136536
 - resnet50: test_acc_epoch = 0.9916201233863831
 
-Refer to src/frame_classifier/test_animals_model.ipynb for confusion matrix and test error study (2 errors, one seems to be dirty label, one image has both cat and dog)
+Refer to src/frame_classifier/test_animals_model.ipynb for confusion matrix and study of resnet50 errors (3/358 errors, one due to dirty label, two due to images with both cat and dog).
+
+Since some images have multiple animals, the dataset may be better handled with a multi-label classification model rather than multi-class model.
 
 ### Classify video frames to active/between points (2-class)
 
-Extract frames from some tennis match videos and separate to active/between points folders to prepare for training (train: 5286 images, test: 1791 images). Then, train two-class classification model as follows:
+The resnet model is further trained to do the frame classification task. Many frames are extract from recorded tennis double matches and separate to active/between points folders for training (train: 5286 images, test: 1791 images). The model can be trained with following command:
 
 python src/frame_classifier/train.py --config cls2_tennis.yaml
 
-Classification result seems quite bad (test set has 562 vs. 1229 images, always guess "between points" can get 68.6% accuracy)
+Initial classification result seems much worse than previous animal classification. Given that the test set has 562 (active frame) vs. 1229 (between points), always guessing "between points" can get 68.6% accuracy.
 - resnet50 (tune_fc_only):  test_acc_epoch = 0.6917923092842102
 - resnet50 (transfer only): test_acc_epoch = 0.7442769408226013
 
-Allow backbone network learning & reduce lr to 0.0001 & crop image to tighter frame & RandomHorizontalFlip (acc = 83%):
+Reduce lr to 0.0001 & crop image to tighter frame & Grayscale input & RandomHorizontalFlip & Resnet101 (acc = 87%):
 
 Confusion Matrix: 0-active (562), 1-between points (1229):
 %83 (grayscale, Resnet50, epoch=10)
