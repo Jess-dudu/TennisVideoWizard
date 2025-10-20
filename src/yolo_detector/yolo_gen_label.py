@@ -56,9 +56,10 @@ if __name__ == "__main__":
 
     exp_root = Path("./_exp")
     yolo_model_path = exp_root / "yolo11n.pt"
-    train_gen_path = exp_root / "yolo_label" / "train"
 
-    # imgs_class_path = exp_root/ "ClassAB/test"
+    # train_gen_path = exp_root / "yolo_label" / "val"
+    train_gen_path = exp_root / "yolo_label" / "train"
+    # imgs_class_path = exp_root/ "ClassAB/val"
     imgs_class_path = exp_root/ "ClassAB/train"
 
     imgs_list = [x for x in imgs_class_path.glob("*/*.jpg") if x.is_file()] 

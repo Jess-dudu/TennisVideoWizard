@@ -19,6 +19,14 @@ train_cls3_animal:
 train_cls2_tennis:
     uv run ./src/frame_classifier/train.py --config cls2_tennis.yaml
 
+# Yolo detector annotate
+yolo_annotate:
+    uv run ./src/yolo_detector/yolo_gen_label.py
+
+# Yolo detector re-train
+yolo_train:
+    uv run ./src/yolo_detector/yolo_class_ab_train.py
+
 # Setup project virtualenv (default to cpu-only)
 [group('lifecycle')]
 install:
