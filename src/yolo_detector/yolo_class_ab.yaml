@@ -1,0 +1,12 @@
+# Dataset root directory relative to the yolo directory
+path: yolo_label
+
+# Train/val/test sets: specify directories, *.txt files, or lists
+train: val/images # images for training
+val: val/images # images for validation
+test: # Optional path to test images
+
+# Classes for ClassAB dataset)
+names:
+    0: active
+    1: between
