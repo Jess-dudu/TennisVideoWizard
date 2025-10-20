@@ -1,0 +1,76 @@
+[project]
+name = "tennis-video-wizard"
+version = "0.1.0"
+description = "ML for video analysis of tennis matches"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.2.6",
+    "matplotlib>=3.10.6",
+    "opencv-contrib-python>=4.12.0.88",
+    "ffmpeg-python>=0.2.0",
+    "scipy>=1.16.1",
+    "torch-dct>=0.1.6",
+    "ultralytics>=8.3.217",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+    "jupyter>=1.1.1",
+    "mkdocs-material>=9.6.18",
+    "mkdocstrings-python>=1.18.2",
+]
+
+[project.optional-dependencies]
+cpu = [
+    "torch>=2.8.0",
+    "torchvision>=0.23.0",
+    "lightning[pytorch-extra]>=2.5.4",
+]
+cu126 = [
+    "torch>=2.8.0",
+    "torchvision>=0.23.0",
+    "lightning[pytorch-extra]>=2.5.4",
+]
+cu129 = [
+    "torch>=2.8.0",
+    "torchvision>=0.23.0",
+    "lightning[pytorch-extra]>=2.5.4",
+]
+
+[tool.uv]
+conflicts = [
+  [
+    { extra = "cpu" },
+    { extra = "cu126" },
+    { extra = "cu129" },
+  ],
+]
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cpu", extra = "cpu" },
+  { index = "pytorch-cu126", extra = "cu126" },
+  { index = "pytorch-cu129", extra = "cu129" },
+]
+torchvision = [
+  { index = "pytorch-cpu", extra = "cpu" },
+  { index = "pytorch-cu126", extra = "cu126" },
+  { index = "pytorch-cu129", extra = "cu129" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu129"
+url = "https://download.pytorch.org/whl/cu129"
+explicit = true
