@@ -28,6 +28,7 @@ python src/frame_classifier/train.py --config cls2_tennis.yaml
 Initial classification result seems much worse than previous animal classification. Given that the test set has 562 (active frame) vs. 1229 (between points), always guessing "between points" can get 68.6% accuracy.
 - resnet50 (tune_fc_only):  test_acc_epoch = 0.6917923092842102
 - resnet50 (transfer only): test_acc_epoch = 0.7442769408226013
+- resnet101 (grayscale): acc = 87% 
 
 Reduce lr to 0.0001 & crop image to tighter frame & Grayscale input & RandomHorizontalFlip & Resnet101 (acc = 87%):
 
