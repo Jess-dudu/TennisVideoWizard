@@ -46,6 +46,11 @@ def genTrainingData(img_path, boxes, train_gen_path, log_level=1):
                      print(f"Skipping box {i} with class {cls}")
                 continue
             
+            if rec[0] < 0.01:
+                if log_level > 0:
+                     print(f"Skipping box {i} for x = {rec[0]}")
+                continue
+
             if log_level > 0:
                  print(f"Box {i}: {label_cls}, {rec[0]}, {rec[1]}, {rec[2]}, {rec[3]}")
             
@@ -54,13 +59,15 @@ def genTrainingData(img_path, boxes, train_gen_path, log_level=1):
 
 if __name__ == "__main__":
 
-    exp_root = Path("./_exp")
-    yolo_model_path = exp_root / "yolo11n.pt"
+    confidence_threshold = 0.6
 
-    # train_gen_path = exp_root / "yolo_label" / "val"
-    train_gen_path = exp_root / "yolo_label" / "train"
-    # imgs_class_path = exp_root/ "ClassAB/val"
-    imgs_class_path = exp_root/ "ClassAB/train"
+    exp_root = Path("./_exp")
+    yolo_model_path = exp_root / "yolo11x.pt"
+
+    train_gen_path = exp_root / "yolo_label" / "val"
+    # train_gen_path = exp_root / "yolo_label" / "train"
+    imgs_class_path = exp_root/ "ClassAB/val"
+    # imgs_class_path = exp_root/ "ClassAB/train"
 
     imgs_list = [x for x in imgs_class_path.glob("*/*.jpg") if x.is_file()] 
     # imgs_list = [imgs_class_path / "Active" / "00022.jpg"]
@@ -69,20 +76,19 @@ if __name__ == "__main__":
 
     # load a model
     model = YOLO(yolo_model_path)
-    # model.conf = 0.35
 
     # predict with model
     # project = exp_root / "yolo_label_run"
-    # model.predict(source=imgs_list, show=False, save=True, project=project, name="predict")
+    # model.predict(source=imgs_list, show=False, save=True, project=project, name="predict", conf=confidence_threshold)
 
-    batch_size = 10
+    batch_size = 16
 
     check_and_create_train_folder(train_gen_path)
     for i in range(0, len(imgs_list), batch_size):
         batch_imgs = imgs_list[i:i+batch_size]
         print(i, "/", len(imgs_list))
 
-        results = model(source=batch_imgs)
+        results = model(source=batch_imgs, conf=confidence_threshold)
         for idx, r in enumerate(results):
             boxes = r.boxes.cpu().numpy()
             genTrainingData(batch_imgs[idx], boxes, train_gen_path)
