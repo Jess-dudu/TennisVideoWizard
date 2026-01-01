@@ -3,7 +3,7 @@ name = "tennis-video-wizard"
 version = "0.1.0"
 description = "ML for video analysis of tennis matches"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = "==3.13.*"
 dependencies = [
     "numpy>=2.2.6",
     "matplotlib>=3.10.6",

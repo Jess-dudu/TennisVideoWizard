@@ -27,6 +27,10 @@ yolo_annotate:
 yolo_train:
     uv run ./src/yolo_detector/yolo_class_ab_train.py
 
+# Yolo detector test
+yolo_test:
+    uv run ./src/yolo_detector/yolo_test.py
+
 # Setup project virtualenv (default to cpu-only)
 [group('lifecycle')]
 install:
