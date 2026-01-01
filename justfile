@@ -45,10 +45,10 @@ install-cu126:
     uv sync --extra cu126
     uv pip install -e .
 
-# Setup project virtualenv cu129
+# Setup project virtualenv cu130
 [group('lifecycle')]
-install-cu129:
-    uv sync --extra cu129
+install-cu130:
+    uv sync --extra cu130
     uv pip install -e .
 
 # Remove temporary files

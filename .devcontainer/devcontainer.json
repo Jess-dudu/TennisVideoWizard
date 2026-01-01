@@ -19,7 +19,7 @@
 	// "postCreateCommand": "pip3 install --user -r requirements.txt",
 	// "postCreateCommand": "uv pip install -r requirements.txt && uv pip install -e .",
 	// "postCreateCommand": "uv pip install -e .",
-	"postCreateCommand": "uv venv /home/vscode/venv && uv sync --extra cu129 && uv pip install -e .",
+	"postCreateCommand": "uv venv /home/vscode/venv && uv sync --extra cu130 && uv pip install -e .",
 
 	// Configure tool-specific properties.
 	"customizations": {
