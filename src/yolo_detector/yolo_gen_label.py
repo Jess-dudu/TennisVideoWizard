@@ -1,10 +1,10 @@
 '''
 This script generates training data for active/between-point player detection for YOLO
 
-imgs_class_path (_exp/ClassAB/train): 
+imgs_class_path (_exp/ClassAB/train, val, test): 
     path to folder containing images (Active/Between) in class subfolders
 
-train_gen_path (_exp/yolo_label): 
+train_gen_path (_exp/ws_yolo/yolo_label/train, val, test): 
     path to folder where generated training data will be stored: images/labels subfolders
 '''
 
@@ -60,12 +60,13 @@ def genTrainingData(img_path, boxes, train_gen_path, log_level=1):
 
 
 def run_yolo_gen_label(set_name="val"):
-    exp_root = yolo_cfg.yolo_cfg['exp_root']
-    yolo_model_path = exp_root / "yolo11x.pt"
+    exp_root = yolo_cfg.exp_root
+    exp_ws_dir = yolo_cfg.exp_ws_dir
+    yolo_model_path = exp_ws_dir / "yolo11x.pt"
     confidence_threshold = 0.6
 
-    imgs_class_path = Path("./_exp") / "ClassAB" / set_name
-    train_gen_path =  exp_root / "yolo_label" / set_name
+    imgs_class_path = exp_root / "ClassAB" / set_name
+    train_gen_path =  exp_ws_dir / "yolo_label" / set_name
 
     imgs_list = [x for x in imgs_class_path.glob("*/*.jpg") if x.is_file()] 
     # imgs_list = [imgs_class_path / "Active" / "00022.jpg"]
@@ -93,5 +94,5 @@ def run_yolo_gen_label(set_name="val"):
 
 if __name__ == "__main__":
 
-    # run_yolo_gen_label("val")
-    run_yolo_gen_label("train")
+    run_yolo_gen_label("val")
+    # run_yolo_gen_label("train")

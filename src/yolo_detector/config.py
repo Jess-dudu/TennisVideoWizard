@@ -1,12 +1,12 @@
 from pathlib import Path
 
-# exp_root = Path("./_exp")
-exp_root = Path("./_exp/ws_yolo")
+exp_root = Path("./_exp")
+exp_ws_dir = exp_root / "ws_yolo"
 
 yolo_cfg = {
     'exp_root': exp_root,
-    'yolo_model_path': exp_root / "yolo11n.pt",  # path to pretrained YOLO model
-    'yolo_custom_model_path': exp_root / "yolo_models" / "train4" / "weights" / "best.pt",  # path to custom trained YOLO model
+    'yolo_model_path': exp_ws_dir / "yolo11n.pt",  # path to pretrained YOLO model
+    'yolo_custom_model_path': exp_ws_dir / "yolo_models" / "train" / "weights" / "best.pt",  # path to custom trained YOLO model
 
     'yolo_train_params': {
         'data': exp_root / "yolo_class_ab.yaml",  # path to data config yaml
