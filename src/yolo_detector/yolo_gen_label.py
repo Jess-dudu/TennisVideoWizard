@@ -12,6 +12,8 @@ from ultralytics import YOLO
 from pathlib import Path
 import shutil
 
+import yolo_detector.config as yolo_cfg
+
 ''' Create training folder structure if not exists '''
 def check_and_create_train_folder(train_gen_path):
         train_gen_path.mkdir(parents=True, exist_ok=True)
@@ -57,17 +59,13 @@ def genTrainingData(img_path, boxes, train_gen_path, log_level=1):
             file.write(f"{label_cls}  {rec[0]:.4f}  {rec[1]:.4f}  {rec[2]:.4f}  {rec[3]:.4f}\n")
 
 
-if __name__ == "__main__":
-
+def run_yolo_gen_label(set_name="val"):
+    exp_root = yolo_cfg.yolo_cfg['exp_root']
+    yolo_model_path = exp_root / "yolo11x.pt"
     confidence_threshold = 0.6
 
-    exp_root = Path("./_exp")
-    yolo_model_path = exp_root / "yolo11x.pt"
-
-    # train_gen_path = exp_root / "yolo_label" / "val"
-    train_gen_path = exp_root / "yolo_label" / "train"
-    # imgs_class_path = exp_root/ "ClassAB/val"
-    imgs_class_path = exp_root/ "ClassAB/train"
+    imgs_class_path = Path("./_exp") / "ClassAB" / set_name
+    train_gen_path =  exp_root / "yolo_label" / set_name
 
     imgs_list = [x for x in imgs_class_path.glob("*/*.jpg") if x.is_file()] 
     # imgs_list = [imgs_class_path / "Active" / "00022.jpg"]
@@ -92,3 +90,8 @@ if __name__ == "__main__":
         for idx, r in enumerate(results):
             boxes = r.boxes.cpu().numpy()
             genTrainingData(batch_imgs[idx], boxes, train_gen_path)
+
+if __name__ == "__main__":
+
+    # run_yolo_gen_label("val")
+    run_yolo_gen_label("train")

@@ -1,29 +1,25 @@
 from ultralytics import YOLO
 from pathlib import Path
 
+import yolo_detector.config as yolo_cfg
 
-if __name__ == "__main__":
+exp_root = yolo_cfg.yolo_cfg['exp_root']
 
-    '''
-    exp_root = Path("./_exp")
-    yolo_model_path = exp_root / "yolo11n.pt"
+def run_yolo_test(source_path):
+    # weights of pretrained model
+    yolo_model_path = exp_root / "yolo11n.pt"   # "yolo11n-pose.pt"
+    # weights of trained model
+    yolo_model_path = exp_root / "yolo_models" / "train" / "weights" / "best.pt"
 
-    # Load a model
-    # model = YOLO("yolo11n.yaml")  # build a new model from YAML
-    model = YOLO(yolo_model_path)  # load a pretrained model (recommended for training)
-    # model = YOLO("yolo11n.yaml").load(yolo_model_path)  # build from YAML and transfer weights
-
-    # Train the model
-    results = model.train(data="yolo_class_ab.yaml", project="./_exp/yolo_models", name="train", epochs=30, imgsz=640)
-    '''
-
-    # Load a pretrained YOLO11n model
-    exp_root = Path("./_exp")
-    yolo_model_path = exp_root / "yolo11n.pt"
-
-    # model = YOLO(yolo_model_path)
-    model = YOLO("./_exp/yolo_models/train4/weights/best.pt")
+    model = YOLO(yolo_model_path)
 
     # Run inference on 'bus.jpg' with arguments
-    # model.predict("./_exp/test_yolo_frms", save=True, project="./_exp/yolo_results", name="predict", imgsz=320, conf=0.5)
-    model.predict("./_exp/20240312_213521_seg1.mov", save=True, project="./_exp/yolo_results", name="predict", batch=16, imgsz=320, conf=0.5)
+    project_path = exp_root / "yolo_results"
+    model.predict(source_path, save=True, project=project_path, name="predict", batch=16, imgsz=640, conf=0.5)
+
+if __name__ == "__main__":
+    source_path_0 = exp_root / "AO2017_cropped.jpg"
+    source_path_1 = exp_root / "test_yolo_frms"
+    source_path_2 = exp_root / "20240312_213521_seg1.mov"
+    run_yolo_test(source_path_2)
+
